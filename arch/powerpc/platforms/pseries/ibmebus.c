@@ -438,32 +438,28 @@ EXPORT_SYMBOL(ibmebus_bus_type);
 static int __init ibmebus_bus_init(void)
 {
 	int err;
-
 	printk(KERN_INFO "IBM eBus Device Driver\n");
-
 	err = bus_register(&ibmebus_bus_type);
 	if (err) {
 		printk(KERN_ERR "%s: failed to register IBM eBus.\n",
 		       __func__);
 		return err;
 	}
-
 	err = device_register(&ibmebus_bus_device);
 	if (err) {
 		printk(KERN_WARNING "%s: device_register returned %i\n",
 		       __func__, err);
+		put_device(&ibmebus_bus_device);
 		bus_unregister(&ibmebus_bus_type);
 
 		return err;
 	}
-
 	err = ibmebus_create_devices(ibmebus_matches);
 	if (err) {
 		device_unregister(&ibmebus_bus_device);
 		bus_unregister(&ibmebus_bus_type);
 		return err;
 	}
-
 	return 0;
 }
 postcore_initcall(ibmebus_bus_init);
